@@ -23,7 +23,7 @@ class PokSpider(CrawlSpider):
             callback="parse", follow=True),)
 
     def parse(self, response):
-        for article_url in response.xpath(".//div[@class='news-wrap wrap-67-33 normal']").extract():
+        for article_url in response.xpath(".//h2").extract():
 
             location = article_url.find(self.mainurl)
             location += len(self.mainurl)
