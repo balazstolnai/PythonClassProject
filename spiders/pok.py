@@ -3,13 +3,19 @@ import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from ..items import OhhItem
+from ..Stringer import Stringer
 
-class PokSpider(scrapy.Spider):
+
+class PokSpider(CrawlSpider):
     name = 'pok'
-    mainurl = 'www.gphirek.hu'
+    mainurl = 'www.origo.hu'
 
     allowed_domains = [mainurl]
-    start_urls = ['https://www.gphirek.hu/index.html']
+    start_urls = ['https://www.origo.hu/index.html']
+
+    def __init__(self, out_file=name + '.csv', *args, **kwargs):
+        self.out_file = out_file
+        super(PokSpider, self).__init__(*args, **kwargs)
 
     rules = (
         Rule(
@@ -17,7 +23,7 @@ class PokSpider(scrapy.Spider):
             callback="parse", follow=True),)
 
     def parse(self, response):
-        for article_url in response.xpath(".//div[@class='day-news-item']").extract():
+        for article_url in response.xpath(".//div[@class='news-wrap wrap-67-33 normal']").extract():
 
             location = article_url.find(self.mainurl)
             location += len(self.mainurl)
@@ -35,8 +41,9 @@ class PokSpider(scrapy.Spider):
 
     def parse_article(self, response):
         item = OhhItem()
+        stringer = Stringer()
         item['title'] = response.xpath('.//title/text()').get()
-        item['article_lead'] = response.xpath('//div[@class="article-lead"]/p/text()').get()
-        item['text'] = ''.join(response.xpath('//div/p[position()>1]/text()').extract())
+        item['article_lead'] = stringer.maketext(response.xpath('//div[@class="article-lead"]/p').extract())
+        item['text'] = stringer.maketext((response.xpath('//div[@id="article-text"]/p').extract()))
 
-        return item
+        yield item

@@ -4,6 +4,7 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
+
 import pandas as pd
 from .items import OhhItem
 
@@ -15,5 +16,5 @@ class OhhPipeline(object):
 
     def process_item(self, item, spider):
         df = pd.DataFrame(dict(item), columns=item.fields.keys(), index=[0])
-        df.to_csv(spider.out_file, index=False, sep=";", mode='a', header=False)
+        df.to_csv(spider.out_file, index=False, sep=";", mode='a', header=False, encoding="utf-8")
         return item
